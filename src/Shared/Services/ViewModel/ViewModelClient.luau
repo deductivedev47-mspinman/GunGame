@@ -19,32 +19,18 @@ type VIEWMODELCHILDS = {
 	Humanoid: { Animator: Animator? }?,
 }
 
-type selfChildren = {
-	CameraMode: Enum.CameraMode?,
-	Character: Model,
-	Humanoid: Humanoid?,
-	Animator: Animator,
-	HRP: BasePart,
-	LeftArm: BasePart,
-	RightArm: BasePart,
-	ViewModel: Model,
-	CurCamera: Camera,
-	Shirt: Shirt?,
-	ClonedVM: VIEWMODELCHILDS?,
-}
-
 function ViewModelClient.Init()
 	local self = setmetatable({}, ViewModelClient)
 
 	task.spawn(function()
-		self.Character = plr.Character or plr.CharacterAdded:Wait()
-		self.Humanoid = plr.Character.Humanoid
-		self.Animator = self.Humanoid.Animator
-		self.HRP = self.Character:WaitForChild("HumanoidRootPart")
-		self.LeftArm = self.Character:WaitForChild("Left Arm")
-		self.RightArm = self.Character:WaitForChild("Right Arm")
-		self.CurCamera = workspace.CurrentCamera
-		self.Shirt = self.Character:FindFirstChild("Shirt")
+		self.Character = plr.Character or plr.CharacterAdded:Wait() :: BasePart?
+		self.Humanoid = plr.Character.Humanoid :: Humanoid?
+		self.Animator = self.Humanoid.Animator :: Animator?
+		self.HRP = self.Character:WaitForChild("HumanoidRootPart") :: BasePart?
+		self.LeftArm = self.Character:WaitForChild("Left Arm") :: BasePart?
+		self.RightArm = self.Character:WaitForChild("Right Arm") :: BasePart?
+		self.CurCamera = workspace.CurrentCamera :: Camera?
+		self.Shirt = self.Character:FindFirstChild("Shirt") :: Shirt?
 	end)
 
 	task.wait(3)
@@ -66,22 +52,21 @@ function ViewModelClient.Init()
 end
 
 function ViewModelClient:Adjust()
-	--> initialize table data
-	local t_s: selfChildren = self
 	--> Lock first person
 	--plr.CameraMode = Enum.CameraMode.LockFirstPerson
 
 	--> View Model
-	t_s.ClonedVM = r_s.Assets.Instances.ViewModel:Clone()
+	self.ClonedVM = r_s.Assets.Instances.ViewModel:Clone()
 
-	local VM = t_s.ClonedVM
-	VM.Parent = t_s.CurCamera
-	VM["Left Arm"].Color = t_s.LeftArm.Color
-	VM["Right Arm"].Color = t_s.RightArm.Color
+	local VM = self.ClonedVM :: VIEWMODELCHILDS
+
+	VM.Parent = self.CurCamera
+	VM["Left Arm"].Color = self.LeftArm.Color
+	VM["Right Arm"].Color = self.RightArm.Color
 
 	--> Shirt Adjustment
-	if t_s.Shirt then
-		local Shirt = t_s.Shirt:Clone()
+	if self.Shirt then
+		local Shirt = self.Shirt:Clone()
 		Shirt.Parent = VM
 	end
 
@@ -92,7 +77,7 @@ function ViewModelClient:Adjust()
 	local VM_FIST_TRACK = VM.Humanoid.Animator:LoadAnimation(VM_FIST_IDLE)
 	--> RIG
 	local RIG_FIST_IDLE = r_s.Assets.Animations.FIST_IDLE.RIG_FIST_IDLE
-	local RIG_FIST_TRACK = t_s.Animator:LoadAnimation(RIG_FIST_IDLE)
+	local RIG_FIST_TRACK = self.Animator:LoadAnimation(RIG_FIST_IDLE)
 
 	RIG_FIST_TRACK:Play()
 	VM_FIST_TRACK:Play()
@@ -107,7 +92,7 @@ function ViewModelClient:Adjust()
 				parts.CanCollide = false
 			end
 		end
-		VM.HumanoidRootPart.CFrame = t_s.CurCamera.CFrame + t_s.CurCamera.CFrame.LookVector * -0.25
+		VM.HumanoidRootPart.CFrame = self.CurCamera.CFrame + self.CurCamera.CFrame.LookVector * -0.25
 
 		--> ViewModel follows camera position plus adds a shifting position every time the mouse moves
 		local mouseDelta = uis:GetMouseDelta() / 50
@@ -117,18 +102,17 @@ function ViewModelClient:Adjust()
 
 		swayCF = swayCF:Lerp(CFrame.new(-swayX, swayY, 0), 0.05)
 
-		VM.HumanoidRootPart.CFrame = t_s.CurCamera.CFrame * swayCF
+		VM.HumanoidRootPart.CFrame = self.CurCamera.CFrame * swayCF
 	end
 	RunService.RenderStepped:Connect(VMFOLLOWCAMERA)
 end
 
 function ViewModelClient:FIST()
-	local t_s: selfChildren = self
 	local Track_Value = 0
 
 	local boolean = true
 
-	local VM = t_s.ClonedVM
+	local VM = self.ClonedVM
 
 	if VM then
 		local WEAPON_TYPE_ATTRIBUTE: string = plr:GetAttribute("WEAPON_TYPE")
@@ -144,13 +128,13 @@ function ViewModelClient:FIST()
 		local VM_FIST_TWO_TRACK = VM.Humanoid.Animator:LoadAnimation(VM_FIST_TWO_ATTACk)
 
 		local RIG_FIST_IDLE = r_s.Assets.Animations.FIST_IDLE.RIG_FIST_IDLE
-		local RIG_FIST_TRACK = t_s.Animator:LoadAnimation(RIG_FIST_IDLE)
+		local RIG_FIST_TRACK = self.Animator:LoadAnimation(RIG_FIST_IDLE)
 
 		local RIG_FIST_ONE_ATTACK = r_s.Assets.Animations.FIST_IDLE["FIST_#1_PUNCH"].RIG_FIST_PUNCH
-		local RIG_FIST_ONE_TRACK = t_s.Animator:LoadAnimation(RIG_FIST_ONE_ATTACK)
+		local RIG_FIST_ONE_TRACK = self.Animator:LoadAnimation(RIG_FIST_ONE_ATTACK)
 
 		local RIG_FIST_TWO_ATTACK = r_s.Assets.Animations.FIST_IDLE["FIST_#2_PUNCH"].RIG_FIST_PUNCH
-		local RIG_FIST_TWO_TRACK = t_s.Animator:LoadAnimation(RIG_FIST_TWO_ATTACK)
+		local RIG_FIST_TWO_TRACK = self.Animator:LoadAnimation(RIG_FIST_TWO_ATTACK)
 
 		if WEAPON_TYPE_ATTRIBUTE == "FIST" then --> Double Check
 			RIG_FIST_TRACK:Play()
