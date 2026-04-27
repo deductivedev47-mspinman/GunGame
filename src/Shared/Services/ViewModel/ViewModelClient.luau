@@ -33,7 +33,7 @@ function ViewModelClient.Init()
 		self.Shirt = self.Character:FindFirstChild("Shirt") :: Shirt?
 	end)
 
-	task.wait(3)
+	task.wait(6)
 	self:Adjust()
 
 	--> Attributes
