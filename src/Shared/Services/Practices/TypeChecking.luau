@@ -16,6 +16,7 @@ type CHAR_PROPS = {
 	HumanoidRootPart: BasePart,
 	Head: BasePart,
 	Humanoid: { Animator: Animator? }?,
+	Glock: Tool?,
 }
 
 return function()
@@ -47,8 +48,16 @@ return function()
 		task.spawn(function()
 			while t_ble.bro do
 				local CamPos = (workspace.CurrentCamera.CFrame.Position - char.Head.Position).Magnitude
-				print(CamPos)
-				task.wait(1)
+				if CamPos < 1 then
+					if char:FindFirstChild("Glock") then
+						for _, meshparts in pairs(char.Glock:GetDescendants()) do
+							if meshparts:IsA("MeshPart") then
+								meshparts.Transparency = 1
+							end
+						end
+					end
+				end
+				task.wait()
 			end
 		end)
 	end
