@@ -8,5 +8,5 @@ return function()
 			return str / toggle
 		end,
 	}
-	print(t_ble.Nate(123123, 512345))
+	print(t_ble.Nate(1, 0.5))
 end

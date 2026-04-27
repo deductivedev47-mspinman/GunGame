@@ -47,11 +47,11 @@ function ViewModelClient.Init()
 		self.Shirt = self.Character:FindFirstChild("Shirt")
 	end)
 
-	task.wait(4)
+	task.wait(3)
 	self:Adjust()
 
 	--> Attributes
-	plr:GetAttributeChangedSignal("WEAPON_TYPE"):Connect(function()
+	--[[plr:GetAttributeChangedSignal("WEAPON_TYPE"):Connect(function()
 		local attribute = plr:GetAttribute("WEAPON_TYPE")
 		if not attribute then
 			return
@@ -60,7 +60,7 @@ function ViewModelClient.Init()
 		if attribute == "FIST" then
 			self:FIST()
 		end
-	end)
+	end)]]
 
 	return self
 end
@@ -86,6 +86,16 @@ function ViewModelClient:Adjust()
 	end
 
 	local swayCF = CFrame.new()
+
+	--> VM
+	local VM_FIST_IDLE = r_s.Assets.Animations.FIST_IDLE.VM_FIST_IDLE
+	local VM_FIST_TRACK = VM.Humanoid.Animator:LoadAnimation(VM_FIST_IDLE)
+	--> RIG
+	local RIG_FIST_IDLE = r_s.Assets.Animations.FIST_IDLE.RIG_FIST_IDLE
+	local RIG_FIST_TRACK = t_s.Animator:LoadAnimation(RIG_FIST_IDLE)
+
+	RIG_FIST_TRACK:Play()
+	VM_FIST_TRACK:Play()
 
 	local function VMFOLLOWCAMERA()
 		--> Follows plr's camera
@@ -113,7 +123,7 @@ function ViewModelClient:Adjust()
 end
 
 function ViewModelClient:FIST()
-	local t_s = self
+	local t_s: selfChildren = self
 	local Track_Value = 0
 
 	local boolean = true
@@ -182,7 +192,7 @@ function ViewModelClient:FIST()
 					VM_FIST_TRACK:Play()
 				end
 
-				task.delay(2, function()
+				task.delay(0.125, function()
 					boolean = true
 				end)
 			end
