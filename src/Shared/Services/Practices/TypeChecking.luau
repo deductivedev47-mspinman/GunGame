@@ -12,10 +12,20 @@ type Function = {
 	},
 }
 
+type CHAR_PROPS = {
+	HumanoidRootPart: BasePart,
+	Head: BasePart,
+	Humanoid: { Animator: Animator? }?,
+}
+
 return function()
+	player.CameraMaxZoomDistance = 15
 	local t_ble: T_ble = {
 		bro = nil,
 	}
+
+	--> Players
+	local char: CHAR_PROPS = player.Character or player.CharacterAdded:Wait()
 
 	local WO: Function = {
 		Nate = function(str, toggle)
@@ -36,8 +46,8 @@ return function()
 
 		task.spawn(function()
 			while t_ble.bro do
-				player.CameraMaxZoomDistance = 15
-				print("")
+				local CamPos = (workspace.CurrentCamera.CFrame.Position - char.Head.Position).Magnitude
+				print(CamPos)
 				task.wait(1)
 			end
 		end)
