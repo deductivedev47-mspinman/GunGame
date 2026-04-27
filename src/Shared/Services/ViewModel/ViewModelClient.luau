@@ -21,14 +21,14 @@ type VIEWMODELCHILDS = {
 
 type selfChildren = {
 	CameraMode: Enum.CameraMode?,
-	Character: Model?,
+	Character: Model,
 	Humanoid: Humanoid?,
-	Animator: Animator?,
-	HRP: BasePart?,
-	LeftArm: BasePart?,
-	RightArm: BasePart?,
-	ViewModel: Model?,
-	CurCamera: Camera?,
+	Animator: Animator,
+	HRP: BasePart,
+	LeftArm: BasePart,
+	RightArm: BasePart,
+	ViewModel: Model,
+	CurCamera: Camera,
 	Shirt: Shirt?,
 	ClonedVM: VIEWMODELCHILDS?,
 }
@@ -74,7 +74,7 @@ function ViewModelClient:Adjust()
 	--> View Model
 	t_s.ClonedVM = r_s.Assets.Instances.ViewModel:Clone()
 
-	local VM: VIEWMODELCHILDS = t_s.ClonedVM
+	local VM = t_s.ClonedVM
 	VM.Parent = t_s.CurCamera
 	VM["Left Arm"].Color = t_s.LeftArm.Color
 	VM["Right Arm"].Color = t_s.RightArm.Color
@@ -113,15 +113,15 @@ function ViewModelClient:Adjust()
 end
 
 function ViewModelClient:FIST()
-	local t_s: selfChildren = self
+	local t_s = self
 	local Track_Value = 0
 
 	local boolean = true
 
-	local VM: VIEWMODELCHILDS = t_s.ClonedVM
+	local VM = t_s.ClonedVM
 
 	if VM then
-		local attribute: boolean = plr:GetAttribute("WEAPON_TYPE")
+		local WEAPON_TYPE_ATTRIBUTE: string = plr:GetAttribute("WEAPON_TYPE")
 
 		--> Animations
 		local VM_FIST_IDLE = r_s.Assets.Animations.FIST_IDLE.VM_FIST_IDLE
@@ -142,7 +142,7 @@ function ViewModelClient:FIST()
 		local RIG_FIST_TWO_ATTACK = r_s.Assets.Animations.FIST_IDLE["FIST_#2_PUNCH"].RIG_FIST_PUNCH
 		local RIG_FIST_TWO_TRACK = t_s.Animator:LoadAnimation(RIG_FIST_TWO_ATTACK)
 
-		if attribute == "FIST" then --> Double Check
+		if WEAPON_TYPE_ATTRIBUTE == "FIST" then --> Double Check
 			RIG_FIST_TRACK:Play()
 			VM_FIST_TRACK:Play()
 		else
