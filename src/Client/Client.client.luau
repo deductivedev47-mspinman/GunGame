@@ -1,3 +1,6 @@
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local r_s = game:GetService("ReplicatedStorage")
+local TypeChecking = require(ReplicatedStorage.Shared.Services.Practices.TypeChecking)
 local VMModule = require(r_s.Shared.Services.ViewModel.ViewModelClient)
 VMModule.Init()
+TypeChecking()
