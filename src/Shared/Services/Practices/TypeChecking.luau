@@ -1,14 +1,12 @@
+--!strict
 local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
 local player = Players.LocalPlayer
 
-type T_ble = {
-	bro: boolean,
-}
-
 type Function = {
-	Nate: (str: number, toggle: number) -> number,
+	Nate: (number, number) -> number,
 	Whisley: {
-		Justen: (Fornes: string, Porones: string?) -> string?,
+		Justen: (string, string) -> string?,
 	},
 }
 
@@ -16,14 +14,10 @@ type CHAR_PROPS = {
 	HumanoidRootPart: BasePart,
 	Head: BasePart,
 	Humanoid: { Animator: Animator? }?,
-	Glock: Tool?,
 }
 
-return function()
+return function(tool: Tool)
 	player.CameraMaxZoomDistance = 15
-	local t_ble: T_ble = {
-		bro = nil,
-	}
 
 	--> Players
 	local char: CHAR_PROPS = player.Character or player.CharacterAdded:Wait()
@@ -33,8 +27,8 @@ return function()
 			return str + toggle
 		end,
 		Whisley = {
-			Justen = function(Fornes, Porones)
-				return (Fornes .. " " .. Porones)
+			Justen = function(str1: string, str2: string)
+				return (str1 .. " - " .. str2)
 			end,
 		},
 	}
@@ -42,25 +36,22 @@ return function()
 	local whisleyFunc = WO.Whisley.Justen("Nathan", "James")
 	print(whisleyFunc)
 
-	local function run(bro: boolean)
-		t_ble.bro = bro
-
-		task.spawn(function()
-			while t_ble.bro do
-				local CamPos = (workspace.CurrentCamera.CFrame.Position - char.Head.Position).Magnitude
-				if CamPos < 1 then
-					if char:FindFirstChild("Glock") then
-						for _, meshparts in pairs(char.Glock:GetDescendants()) do
-							if meshparts:IsA("MeshPart") then
-								meshparts.Transparency = 1
-							end
-						end
+	task.spawn(function()
+		RunService.RenderStepped:Connect(function()
+			local CamPos = (workspace.CurrentCamera.CFrame.Position - char.Head.Position).Magnitude
+			if CamPos < 1 then
+				for _, meshes in tool:GetDescendants() do
+					if meshes:IsA("MeshPart") then
+						meshes.Transparency = 1
 					end
 				end
-				task.wait()
+			else
+				for _, meshes in tool:GetDescendants() do
+					if meshes:IsA("MeshPart") then
+						meshes.Transparency = 0
+					end
+				end
 			end
 		end)
-	end
-
-	run(true)
+	end)
 end
