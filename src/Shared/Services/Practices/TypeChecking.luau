@@ -1,12 +1,22 @@
 type Function = {
 	Nate: (str: number, toggle: number) -> number,
+	Whisley: {
+		Justen: (Fornes: string, Porones: string?) -> string?,
+	},
 }
 
 return function()
-	local t_ble: Function = {
+	local WO: Function = {
 		Nate = function(str, toggle)
-			return str / toggle
+			return str + toggle
 		end,
+		Whisley = {
+			Justen = function(Fornes, Porones)
+				return (Fornes .. " " .. Porones)
+			end,
+		},
 	}
-	print(t_ble.Nate(1, 0.5))
+
+	local whisleyFunc = WO.Whisley.Justen("Nathan", "James")
+	print(whisleyFunc)
 end
