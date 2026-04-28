@@ -17,24 +17,7 @@ type CHAR_PROPS = {
 }
 
 return function(tool: Tool)
-	player.CameraMaxZoomDistance = 15
-
-	--> Players
 	local char: CHAR_PROPS = player.Character or player.CharacterAdded:Wait()
-
-	local WO: Function = {
-		Nate = function(str, toggle)
-			return str + toggle
-		end,
-		Whisley = {
-			Justen = function(str1: string, str2: string)
-				return (str1 .. " - " .. str2)
-			end,
-		},
-	}
-
-	local whisleyFunc = WO.Whisley.Justen("Nathan", "James")
-	print(whisleyFunc)
 
 	task.spawn(function()
 		RunService.RenderStepped:Connect(function()
