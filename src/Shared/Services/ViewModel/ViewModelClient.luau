@@ -19,12 +19,6 @@ type VIEWMODELCHILDS = {
 	Humanoid: { Animator: Animator? }?,
 }
 
-uis.InputBegan:Connect(function(input)
-	if input.KeyCode == Enum.KeyCode.One then
-		plr:SetAttribute("WEAPON_TYPE", "M4A1")
-	end
-end)
-
 function ViewModelClient.Init()
 	local self = setmetatable({}, ViewModelClient)
 
@@ -190,15 +184,21 @@ function ViewModelClient:Adjust()
 			--> Play Animation Before parenting it
 			local M4A1_IDLE =
 				r_s:WaitForChild("Assets"):WaitForChild("Animations"):WaitForChild("GUN_M4A1"):WaitForChild("Idle")
-			local M4A1_IDLE2 =
-				r_s:WaitForChild("Assets"):WaitForChild("Animations"):WaitForChild("GUN_M4A1"):WaitForChild("Idle2")
-			local M4A1_IDLE2_TRACK = VM.Humanoid.Animator:LoadAnimation(M4A1_IDLE2)
 			local M4A1_IDLE_TRACK = VM.Humanoid.Animator:LoadAnimation(M4A1_IDLE)
 
 			M4A1_IDLE_TRACK:Play()
-			M4A1_IDLE_TRACK:AdjustSpeed(0.9)
-			task.wait(0.2)
-			M4A1_IDLE2_TRACK:Play()
+			for _, parts in VM:GetDescendants() do
+				if parts:IsA("BasePart") then
+					parts.Transparency = 1
+					parts.CanCollide = false
+				end
+			end
+			task.wait(0.1)
+			for _, parts in VM:GetDescendants() do
+				if parts:IsA("BasePart") then
+					parts.Transparency = 0
+				end
+			end
 		end
 	end
 
@@ -212,7 +212,9 @@ function ViewModelClient:Adjust()
 		if attribute == "M4A1" then
 			M4A1()
 		else
-			FIST()
+			VM:Destroy()
+			VM = nil
+			Default()
 		end
 	end)
 
@@ -222,25 +224,29 @@ function ViewModelClient:Adjust()
 
 	local function VMFOLLOWCAMERA()
 		--> Follows plr's camera
-		if not workspace.Camera:FindFirstChild(VM.Name) or not VM:FindFirstChild("HumanoidRootPart") then
-			return
-		end
-		for _, parts in VM:GetChildren() do
-			if parts:IsA("BasePart") then
-				parts.CanCollide = false
+		if VM then
+			if not workspace.Camera:FindFirstChild(VM.Name) or not VM:FindFirstChild("HumanoidRootPart") then
+				return
 			end
+			for _, parts in VM:GetChildren() do
+				if parts:IsA("BasePart") then
+					parts.CanCollide = false
+				end
+			end
+			VM.HumanoidRootPart.CFrame = self.CurCamera.CFrame + self.CurCamera.CFrame.LookVector * 3
+
+			--> ViewModel follows camera position plus adds a shifting position every time the mouse moves
+			local mouseDelta = uis:GetMouseDelta() / 50
+
+			local swayX = math.clamp(mouseDelta.X, -0.08, 0.08)
+			local swayY = math.clamp(mouseDelta.Y, -0.08, 0.08)
+
+			swayCF = swayCF:Lerp(CFrame.new(-swayX, swayY, 0), 0.05)
+
+			VM.HumanoidRootPart.CFrame = self.CurCamera.CFrame * swayCF
+		else
+			print("None")
 		end
-		VM.HumanoidRootPart.CFrame = self.CurCamera.CFrame + self.CurCamera.CFrame.LookVector * 3
-
-		--> ViewModel follows camera position plus adds a shifting position every time the mouse moves
-		local mouseDelta = uis:GetMouseDelta() / 50
-
-		local swayX = math.clamp(mouseDelta.X, -0.08, 0.08)
-		local swayY = math.clamp(mouseDelta.Y, -0.08, 0.08)
-
-		swayCF = swayCF:Lerp(CFrame.new(-swayX, swayY, 0), 0.05)
-
-		VM.HumanoidRootPart.CFrame = self.CurCamera.CFrame * swayCF
 	end
 	RunService.RenderStepped:Connect(VMFOLLOWCAMERA)
 end

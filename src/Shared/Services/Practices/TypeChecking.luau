@@ -25,6 +25,8 @@ return function(tool)
 	local idleTrack
 
 	tool.Equipped:Connect(function()
+		player:SetAttribute("WEAPON_TYPE", "M4A1")
+
 		--> Animations and Tracks
 
 		local idle: Animation = tool:WaitForChild("Animations"):WaitForChild("Idle")
@@ -43,6 +45,9 @@ return function(tool)
 		motor6d:Destroy()
 		idleTrack = nil
 		motor6d = nil
+		player:SetAttribute("WEAPON_TYPE", "NONE")
+		player:SetAttribute("WEAPON_TYPE", "NATHAHSHASHDABSd")
+		print("Nate")
 	end)
 
 	task.spawn(function()
