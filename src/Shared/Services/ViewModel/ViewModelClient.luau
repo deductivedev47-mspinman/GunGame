@@ -19,6 +19,12 @@ type VIEWMODELCHILDS = {
 	Humanoid: { Animator: Animator? }?,
 }
 
+uis.InputBegan:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseButton1 then
+		plr:SetAttribute("WEAPON_TYPE", "M4A1")
+	end
+end)
+
 function ViewModelClient.Init()
 	local self = setmetatable({}, ViewModelClient)
 
@@ -30,23 +36,11 @@ function ViewModelClient.Init()
 		self.LeftArm = self.Character:WaitForChild("Left Arm") :: BasePart?
 		self.RightArm = self.Character:WaitForChild("Right Arm") :: BasePart?
 		self.CurCamera = workspace.CurrentCamera :: Camera?
-		self.Shirt = self.Character:FindFirstChild("Shirt") :: Shirt?
+		self.Shirt = self.Character:WaitForChild("Shirt") :: Shirt?
 	end)
 
 	task.wait(6)
 	self:Adjust()
-
-	--> Attributes
-	--[[plr:GetAttributeChangedSignal("WEAPON_TYPE"):Connect(function()
-		local attribute = plr:GetAttribute("WEAPON_TYPE")
-		if not attribute then
-			return
-		end
-
-		if attribute == "FIST" then
-			self:FIST()
-		end
-	end)]]
 
 	return self
 end
@@ -56,35 +50,63 @@ function ViewModelClient:Adjust()
 	--plr.CameraMode = Enum.CameraMode.LockFirstPerson
 
 	--> View Model
-	self.ClonedVM = r_s.Assets.Instances.ViewModel:Clone()
+	local VM
 
-	local VM = self.ClonedVM :: VIEWMODELCHILDS
+	local function Default()
+		self.ClonedVM = r_s:WaitForChild("Assets"):WaitForChild("Instances"):WaitForChild("ViewModel"):Clone()
+		VM = self.ClonedVM :: VIEWMODELCHILDS
+		VM.Parent = self.CurCamera
+		VM["Left Arm"].Color = self.LeftArm.Color
+		VM["Right Arm"].Color = self.RightArm.Color
 
-	VM.Parent = self.CurCamera
-	VM["Left Arm"].Color = self.LeftArm.Color
-	VM["Right Arm"].Color = self.RightArm.Color
-
-	--> Shirt Adjustment
-	if self.Shirt then
-		local Shirt = self.Shirt:Clone()
-		Shirt.Parent = VM
+		--> Shirt Adjustment
+		if self.Shirt then
+			local Shirt = self.Shirt:Clone()
+			Shirt.Parent = VM
+		end
 	end
+
+	local function M4A1()
+		if VM then
+			VM:Destroy()
+
+			self.ClonedVM = r_s:WaitForChild("Assets"):WaitForChild("Instances"):WaitForChild("ViewModel_M4A1"):Clone()
+			VM = self.ClonedVM :: VIEWMODELCHILDS
+			VM.Parent = self.CurCamera
+			VM["Left Arm"].Color = self.LeftArm.Color
+			VM["Right Arm"].Color = self.RightArm.Color
+
+			if self.Shirt then
+				local Shirt = self.Shirt:Clone()
+				Shirt.Parent = VM
+			end
+
+			local M4A1_IDLE =
+				r_s:WaitForChild("Assets"):WaitForChild("Animations"):WaitForChild("GUN_M4A1"):WaitForChild("Idle")
+			local M4A1_IDLE_TRACK = VM.Humanoid.Animator:LoadAnimation(M4A1_IDLE)
+			M4A1_IDLE_TRACK:Play()
+		end
+	end
+
+	--> Attributes
+	plr:GetAttributeChangedSignal("WEAPON_TYPE"):Connect(function()
+		local attribute = plr:GetAttribute("WEAPON_TYPE")
+		if not attribute then
+			return
+		end
+
+		if attribute == "M4A1" then
+			M4A1()
+		end
+	end)
+
+	Default()
 
 	local swayCF = CFrame.new()
 
-	--> VM
-	local VM_FIST_IDLE = r_s.Assets.Animations.FIST_IDLE.VM_FIST_IDLE
-	local VM_FIST_TRACK = VM.Humanoid.Animator:LoadAnimation(VM_FIST_IDLE)
-	--> RIG
-	local RIG_FIST_IDLE = r_s.Assets.Animations.FIST_IDLE.RIG_FIST_IDLE
-	local RIG_FIST_TRACK = self.Animator:LoadAnimation(RIG_FIST_IDLE)
-
-	RIG_FIST_TRACK:Play()
-	VM_FIST_TRACK:Play()
-
 	local function VMFOLLOWCAMERA()
 		--> Follows plr's camera
-		if not workspace.Camera:FindFirstChild("ViewModel") or not VM:FindFirstChild("HumanoidRootPart") then
+		if not workspace.Camera:FindFirstChild(VM.Name) or not VM:FindFirstChild("HumanoidRootPart") then
 			return
 		end
 		for _, parts in VM:GetChildren() do
@@ -92,7 +114,7 @@ function ViewModelClient:Adjust()
 				parts.CanCollide = false
 			end
 		end
-		VM.HumanoidRootPart.CFrame = self.CurCamera.CFrame + self.CurCamera.CFrame.LookVector * -0.25
+		VM.HumanoidRootPart.CFrame = self.CurCamera.CFrame + self.CurCamera.CFrame.LookVector * 3
 
 		--> ViewModel follows camera position plus adds a shifting position every time the mouse moves
 		local mouseDelta = uis:GetMouseDelta() / 50
