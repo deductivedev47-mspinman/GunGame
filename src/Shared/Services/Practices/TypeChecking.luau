@@ -1,4 +1,3 @@
---!strict
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local player = Players.LocalPlayer
@@ -16,8 +15,35 @@ type CHAR_PROPS = {
 	Humanoid: { Animator: Animator? }?,
 }
 
-return function(tool: Tool)
+return function(tool)
+	--> Player Character
 	local char: CHAR_PROPS = player.Character or player.CharacterAdded:Wait()
+	local humanoid = char.Humanoid
+
+	local motor6d
+
+	local idleTrack
+
+	tool.Equipped:Connect(function()
+		--> Animations and Tracks
+
+		local idle: Animation = tool:WaitForChild("Animations"):WaitForChild("Idle")
+		idleTrack = humanoid.Animator:LoadAnimation(idle)
+
+		motor6d = Instance.new("Motor6D")
+		motor6d.Parent = char.HumanoidRootPart
+		motor6d.Part0 = char.HumanoidRootPart
+		motor6d.Part1 = tool:WaitForChild("M4A1"):WaitForChild("HumanoidRootPart")
+
+		idleTrack:Play()
+	end)
+
+	tool.Unequipped:Connect(function()
+		idleTrack:Stop()
+		motor6d:Destroy()
+		idleTrack = nil
+		motor6d = nil
+	end)
 
 	task.spawn(function()
 		RunService.RenderStepped:Connect(function()

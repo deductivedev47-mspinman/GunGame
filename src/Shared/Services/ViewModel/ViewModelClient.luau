@@ -23,9 +23,6 @@ uis.InputBegan:Connect(function(input)
 	if input.KeyCode == Enum.KeyCode.One then
 		plr:SetAttribute("WEAPON_TYPE", "M4A1")
 	end
-	if input.KeyCode == Enum.KeyCode.Two then
-		plr:SetAttribute("WEAPON_TYPE", "FIST")
-	end
 end)
 
 function ViewModelClient.Init()
@@ -42,7 +39,7 @@ function ViewModelClient.Init()
 		self.Shirt = self.Character:WaitForChild("Shirt") :: Shirt?
 	end)
 
-	task.wait(6)
+	task.wait(4)
 	self:Adjust()
 
 	return self
@@ -180,36 +177,28 @@ function ViewModelClient:Adjust()
 			self.ClonedVM = r_s:WaitForChild("Assets"):WaitForChild("Instances"):WaitForChild("ViewModel_M4A1"):Clone()
 			VM = self.ClonedVM :: VIEWMODELCHILDS
 
-			--> Play Animation Before parenting it
-			local M4A1_IDLE =
-				r_s:WaitForChild("Assets"):WaitForChild("Animations"):WaitForChild("GUN_M4A1"):WaitForChild("Idle")
-			local M4A1_IDLE_TRACK = VM.Humanoid.Animator:LoadAnimation(M4A1_IDLE)
-			M4A1_IDLE_TRACK:Play()
-
 			VM.Parent = self.CurCamera
+
 			VM["Left Arm"].Color = self.LeftArm.Color
 			VM["Right Arm"].Color = self.RightArm.Color
-
-			for _, parts in VM:GetDescendants() do
-				if parts:IsA("BasePart") then
-					parts.Transparency = 1
-				elseif parts:IsA("MeshPart") then
-					parts.Transparency = 1
-				end
-			end
-			task.wait(0.3)
-			for _, parts in VM:GetDescendants() do
-				if parts:IsA("BasePart") then
-					parts.Transparency = 0
-				elseif parts:IsA("MeshPart") then
-					parts.Transparency = 0
-				end
-			end
 
 			if self.Shirt then
 				local Shirt = self.Shirt:Clone()
 				Shirt.Parent = VM
 			end
+
+			--> Play Animation Before parenting it
+			local M4A1_IDLE =
+				r_s:WaitForChild("Assets"):WaitForChild("Animations"):WaitForChild("GUN_M4A1"):WaitForChild("Idle")
+			local M4A1_IDLE2 =
+				r_s:WaitForChild("Assets"):WaitForChild("Animations"):WaitForChild("GUN_M4A1"):WaitForChild("Idle2")
+			local M4A1_IDLE2_TRACK = VM.Humanoid.Animator:LoadAnimation(M4A1_IDLE2)
+			local M4A1_IDLE_TRACK = VM.Humanoid.Animator:LoadAnimation(M4A1_IDLE)
+
+			M4A1_IDLE_TRACK:Play()
+			M4A1_IDLE_TRACK:AdjustSpeed(0.9)
+			task.wait(0.2)
+			M4A1_IDLE2_TRACK:Play()
 		end
 	end
 
@@ -222,7 +211,7 @@ function ViewModelClient:Adjust()
 
 		if attribute == "M4A1" then
 			M4A1()
-		elseif attribute == "FIST" then
+		else
 			FIST()
 		end
 	end)
