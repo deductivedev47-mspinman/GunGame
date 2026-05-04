@@ -20,8 +20,11 @@ type VIEWMODELCHILDS = {
 }
 
 uis.InputBegan:Connect(function(input)
-	if input.UserInputType == Enum.UserInputType.MouseButton1 then
+	if input.KeyCode == Enum.KeyCode.One then
 		plr:SetAttribute("WEAPON_TYPE", "M4A1")
+	end
+	if input.KeyCode == Enum.KeyCode.Two then
+		plr:SetAttribute("WEAPON_TYPE", "FIST")
 	end
 end)
 
@@ -66,25 +69,131 @@ function ViewModelClient:Adjust()
 		end
 	end
 
+	local function FIST()
+		local Track_Value = 0
+		local boolean = true
+
+		if VM then
+			VM:Destroy()
+			self.ClonedVM = r_s:WaitForChild("Assets"):WaitForChild("Instances"):WaitForChild("ViewModel"):Clone()
+			VM = self.ClonedVM :: VIEWMODELCHILDS
+
+			VM.Parent = self.CurCamera
+			VM["Left Arm"].Color = self.LeftArm.Color
+			VM["Right Arm"].Color = self.RightArm.Color
+
+			--> Shirt Adjustment
+			if self.Shirt then
+				local Shirt = self.Shirt:Clone()
+				Shirt.Parent = VM
+			end
+
+			local WEAPON_TYPE_ATTRIBUTE: string = plr:GetAttribute("WEAPON_TYPE")
+
+			--> Animations
+			local VM_FIST_IDLE = r_s.Assets.Animations.FIST_IDLE.VM_FIST_IDLE
+			local VM_FIST_TRACK = VM.Humanoid.Animator:LoadAnimation(VM_FIST_IDLE)
+
+			local VM_FIST_ONE_ATTACK = r_s.Assets.Animations.FIST_IDLE["FIST_#1_PUNCH"].VM_FIST_PUNCH
+			local VM_FIST_ONE_TRACK = VM.Humanoid.Animator:LoadAnimation(VM_FIST_ONE_ATTACK)
+
+			local VM_FIST_TWO_ATTACk = r_s.Assets.Animations.FIST_IDLE["FIST_#2_PUNCH"].VM_FIST_PUNCH
+			local VM_FIST_TWO_TRACK = VM.Humanoid.Animator:LoadAnimation(VM_FIST_TWO_ATTACk)
+
+			local RIG_FIST_IDLE = r_s.Assets.Animations.FIST_IDLE.RIG_FIST_IDLE
+			local RIG_FIST_TRACK = self.Animator:LoadAnimation(RIG_FIST_IDLE)
+
+			local RIG_FIST_ONE_ATTACK = r_s.Assets.Animations.FIST_IDLE["FIST_#1_PUNCH"].RIG_FIST_PUNCH
+			local RIG_FIST_ONE_TRACK = self.Animator:LoadAnimation(RIG_FIST_ONE_ATTACK)
+
+			local RIG_FIST_TWO_ATTACK = r_s.Assets.Animations.FIST_IDLE["FIST_#2_PUNCH"].RIG_FIST_PUNCH
+			local RIG_FIST_TWO_TRACK = self.Animator:LoadAnimation(RIG_FIST_TWO_ATTACK)
+
+			if WEAPON_TYPE_ATTRIBUTE == "FIST" then --> Double Check
+				RIG_FIST_TRACK:Play()
+				VM_FIST_TRACK:Play()
+			else
+				print("Nope")
+			end
+
+			uis.InputBegan:Connect(function(keybind)
+				if keybind.UserInputType == Enum.UserInputType.MouseButton1 and boolean then
+					boolean = false
+					Track_Value += 1
+
+					if Track_Value == 1 then
+						RIG_FIST_TRACK:Stop()
+						VM_FIST_TRACK:Stop()
+
+						VM_FIST_ONE_TRACK:Play()
+						RIG_FIST_ONE_TRACK:Play()
+						-->Adjust Speed
+						VM_FIST_ONE_TRACK:AdjustSpeed(1.4)
+						RIG_FIST_ONE_TRACK:AdjustSpeed(1.4)
+
+						task.wait(0.1) --> 0.115
+						RIG_FIST_TRACK:Play()
+						VM_FIST_TRACK:Play()
+					elseif Track_Value == 2 then
+						Track_Value = 0
+						RIG_FIST_TRACK:Stop()
+						VM_FIST_TRACK:Stop()
+
+						VM_FIST_TWO_TRACK:Play()
+						RIG_FIST_TWO_TRACK:Play()
+						VM_FIST_TWO_TRACK:AdjustSpeed(1.5)
+						RIG_FIST_TWO_TRACK:AdjustSpeed(1.5)
+
+						task.wait(0.23)
+						RIG_FIST_TRACK:Play()
+						VM_FIST_TRACK:Play()
+					end
+
+					task.delay(0.125, function()
+						boolean = true
+					end)
+				end
+			end)
+		end
+	end
+
 	local function M4A1()
 		if VM then
 			VM:Destroy()
 
 			self.ClonedVM = r_s:WaitForChild("Assets"):WaitForChild("Instances"):WaitForChild("ViewModel_M4A1"):Clone()
 			VM = self.ClonedVM :: VIEWMODELCHILDS
+
+			--> Play Animation Before parenting it
+			local M4A1_IDLE =
+				r_s:WaitForChild("Assets"):WaitForChild("Animations"):WaitForChild("GUN_M4A1"):WaitForChild("Idle")
+			local M4A1_IDLE_TRACK = VM.Humanoid.Animator:LoadAnimation(M4A1_IDLE)
+			M4A1_IDLE_TRACK:Play()
+
 			VM.Parent = self.CurCamera
 			VM["Left Arm"].Color = self.LeftArm.Color
 			VM["Right Arm"].Color = self.RightArm.Color
+
+			for _, parts in VM:GetDescendants() do
+				if parts:IsA("BasePart") then
+					parts.Transparency = 1
+				elseif parts:IsA("MeshPart") then
+					parts.Transparency = 1
+				end
+			end
+			task.wait(0.3)
+			for _, parts in VM:GetDescendants() do
+				if parts:IsA("BasePart") then
+					parts.Transparency = 0
+				elseif parts:IsA("MeshPart") then
+					parts.Transparency = 0
+				end
+			end
 
 			if self.Shirt then
 				local Shirt = self.Shirt:Clone()
 				Shirt.Parent = VM
 			end
-
-			local M4A1_IDLE =
-				r_s:WaitForChild("Assets"):WaitForChild("Animations"):WaitForChild("GUN_M4A1"):WaitForChild("Idle")
-			local M4A1_IDLE_TRACK = VM.Humanoid.Animator:LoadAnimation(M4A1_IDLE)
-			M4A1_IDLE_TRACK:Play()
 		end
 	end
 
@@ -97,6 +206,8 @@ function ViewModelClient:Adjust()
 
 		if attribute == "M4A1" then
 			M4A1()
+		elseif attribute == "FIST" then
+			FIST()
 		end
 	end)
 
@@ -127,83 +238,6 @@ function ViewModelClient:Adjust()
 		VM.HumanoidRootPart.CFrame = self.CurCamera.CFrame * swayCF
 	end
 	RunService.RenderStepped:Connect(VMFOLLOWCAMERA)
-end
-
-function ViewModelClient:FIST()
-	local Track_Value = 0
-
-	local boolean = true
-
-	local VM = self.ClonedVM
-
-	if VM then
-		local WEAPON_TYPE_ATTRIBUTE: string = plr:GetAttribute("WEAPON_TYPE")
-
-		--> Animations
-		local VM_FIST_IDLE = r_s.Assets.Animations.FIST_IDLE.VM_FIST_IDLE
-		local VM_FIST_TRACK = VM.Humanoid.Animator:LoadAnimation(VM_FIST_IDLE)
-
-		local VM_FIST_ONE_ATTACK = r_s.Assets.Animations.FIST_IDLE["FIST_#1_PUNCH"].VM_FIST_PUNCH
-		local VM_FIST_ONE_TRACK = VM.Humanoid.Animator:LoadAnimation(VM_FIST_ONE_ATTACK)
-
-		local VM_FIST_TWO_ATTACk = r_s.Assets.Animations.FIST_IDLE["FIST_#2_PUNCH"].VM_FIST_PUNCH
-		local VM_FIST_TWO_TRACK = VM.Humanoid.Animator:LoadAnimation(VM_FIST_TWO_ATTACk)
-
-		local RIG_FIST_IDLE = r_s.Assets.Animations.FIST_IDLE.RIG_FIST_IDLE
-		local RIG_FIST_TRACK = self.Animator:LoadAnimation(RIG_FIST_IDLE)
-
-		local RIG_FIST_ONE_ATTACK = r_s.Assets.Animations.FIST_IDLE["FIST_#1_PUNCH"].RIG_FIST_PUNCH
-		local RIG_FIST_ONE_TRACK = self.Animator:LoadAnimation(RIG_FIST_ONE_ATTACK)
-
-		local RIG_FIST_TWO_ATTACK = r_s.Assets.Animations.FIST_IDLE["FIST_#2_PUNCH"].RIG_FIST_PUNCH
-		local RIG_FIST_TWO_TRACK = self.Animator:LoadAnimation(RIG_FIST_TWO_ATTACK)
-
-		if WEAPON_TYPE_ATTRIBUTE == "FIST" then --> Double Check
-			RIG_FIST_TRACK:Play()
-			VM_FIST_TRACK:Play()
-		else
-			print("Nope")
-		end
-
-		uis.InputBegan:Connect(function(keybind)
-			if keybind.UserInputType == Enum.UserInputType.MouseButton1 and boolean then
-				boolean = false
-				Track_Value += 1
-
-				if Track_Value == 1 then
-					RIG_FIST_TRACK:Stop()
-					VM_FIST_TRACK:Stop()
-
-					VM_FIST_ONE_TRACK:Play()
-					RIG_FIST_ONE_TRACK:Play()
-					-->Adjust Speed
-					VM_FIST_ONE_TRACK:AdjustSpeed(1.4)
-					RIG_FIST_ONE_TRACK:AdjustSpeed(1.4)
-
-					task.wait(0.1) --> 0.115
-					RIG_FIST_TRACK:Play()
-					VM_FIST_TRACK:Play()
-				elseif Track_Value == 2 then
-					Track_Value = 0
-					RIG_FIST_TRACK:Stop()
-					VM_FIST_TRACK:Stop()
-
-					VM_FIST_TWO_TRACK:Play()
-					RIG_FIST_TWO_TRACK:Play()
-					VM_FIST_TWO_TRACK:AdjustSpeed(1.5)
-					RIG_FIST_TWO_TRACK:AdjustSpeed(1.5)
-
-					task.wait(0.23)
-					RIG_FIST_TRACK:Play()
-					VM_FIST_TRACK:Play()
-				end
-
-				task.delay(0.125, function()
-					boolean = true
-				end)
-			end
-		end)
-	end
 end
 
 return ViewModelClient
