@@ -9,58 +9,54 @@ type Function = {
 	},
 }
 
-type CHAR_PROPS = {
-	HumanoidRootPart: BasePart,
-	Head: BasePart,
-	Humanoid: { Animator: Animator? }?,
-}
+local tool = {}
+tool.__index = tool
 
-return function(tool)
+function tool.Init(toolobject)
+	local self = setmetatable({}, tool)
+
+	self:M4A1(toolobject)
+
+	return self
+end
+
+function tool:M4A1(toolObj)
 	--> Player Character
-	local char: CHAR_PROPS = player.Character or player.CharacterAdded:Wait()
+	local char = player.Character or player.CharacterAdded:Wait()
+	local head = char:WaitForChild("Head")
 	local humanoid = char.Humanoid
 
-	local motor6d
+	local idle: Animation = toolObj:WaitForChild("Animations"):WaitForChild("Idle")
+	local idleTrack: AnimationTrack = humanoid.Animator:LoadAnimation(idle)
 
-	local idleTrack
+	local Motor6D = Instance.new("Motor6D")
+	Motor6D.Name = "M4A1"
+	Motor6D.Parent = char:WaitForChild("HumanoidRootPart")
+	Motor6D.Part0 = char:WaitForChild("HumanoidRootPart")
+	Motor6D.Part1 = toolObj:WaitForChild("M4A1"):WaitForChild("HumanoidRootPart")
 
-	tool.Equipped:Connect(function()
-		player:SetAttribute("WEAPON_TYPE", "M4A1")
+	local function run()
+		local atr = player:GetAttribute("M4A1")
+		if atr then
+			idleTrack:Play()
+		else
+			idleTrack:Stop()
+		end
+	end
 
-		--> Animations and Tracks
-
-		local idle: Animation = tool:WaitForChild("Animations"):WaitForChild("Idle")
-		idleTrack = humanoid.Animator:LoadAnimation(idle)
-
-		motor6d = Instance.new("Motor6D")
-		motor6d.Parent = char.HumanoidRootPart
-		motor6d.Part0 = char.HumanoidRootPart
-		motor6d.Part1 = tool:WaitForChild("M4A1"):WaitForChild("HumanoidRootPart")
-
-		idleTrack:Play()
-	end)
-
-	tool.Unequipped:Connect(function()
-		idleTrack:Stop()
-		motor6d:Destroy()
-		idleTrack = nil
-		motor6d = nil
-		player:SetAttribute("WEAPON_TYPE", "NONE")
-		player:SetAttribute("WEAPON_TYPE", "NATHAHSHASHDABSd")
-		print("Nate")
-	end)
+	player:GetAttributeChangedSignal("M4A1"):Connect(run)
 
 	task.spawn(function()
 		RunService.RenderStepped:Connect(function()
-			local CamPos = (workspace.CurrentCamera.CFrame.Position - char.Head.Position).Magnitude
+			local CamPos = (workspace.CurrentCamera.CFrame.Position - head.Position).Magnitude
 			if CamPos < 1 then
-				for _, meshes in tool:GetDescendants() do
+				for _, meshes in toolObj:GetDescendants() do
 					if meshes:IsA("MeshPart") then
 						meshes.Transparency = 1
 					end
 				end
 			else
-				for _, meshes in tool:GetDescendants() do
+				for _, meshes in toolObj:GetDescendants() do
 					if meshes:IsA("MeshPart") then
 						meshes.Transparency = 0
 					end
@@ -69,3 +65,5 @@ return function(tool)
 		end)
 	end)
 end
+
+return tool

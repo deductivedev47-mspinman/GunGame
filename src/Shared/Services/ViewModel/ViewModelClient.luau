@@ -33,7 +33,7 @@ function ViewModelClient.Init()
 		self.Shirt = self.Character:WaitForChild("Shirt") :: Shirt?
 	end)
 
-	task.wait(4)
+	task.wait(1)
 	self:Adjust()
 
 	return self
@@ -164,7 +164,11 @@ function ViewModelClient:Adjust()
 		end
 	end
 
+	local TEM_NUM = 0
+
 	local function M4A1()
+		TEM_NUM += 1
+
 		if VM then
 			VM:Destroy()
 
@@ -181,44 +185,54 @@ function ViewModelClient:Adjust()
 				Shirt.Parent = VM
 			end
 
-			--> Play Animation Before parenting it
 			local M4A1_IDLE =
 				r_s:WaitForChild("Assets"):WaitForChild("Animations"):WaitForChild("GUN_M4A1"):WaitForChild("Idle")
 			local M4A1_IDLE_TRACK = VM.Humanoid.Animator:LoadAnimation(M4A1_IDLE)
 
-			M4A1_IDLE_TRACK:Play()
-			for _, parts in VM:GetDescendants() do
-				if parts:IsA("BasePart") then
-					parts.Transparency = 1
-					parts.CanCollide = false
+			if TEM_NUM == 1 then
+				M4A1_IDLE_TRACK:Play()
+				for _, parts in VM:GetDescendants() do
+					if parts:IsA("BasePart") then
+						parts.Transparency = 1
+						parts.CanCollide = false
+					end
+				end
+				task.wait(0.36)
+				for _, parts in VM:GetDescendants() do
+					if parts:IsA("BasePart") then
+						parts.Transparency = 0
+					end
+				end
+			else
+				M4A1_IDLE_TRACK:Play()
+				for _, parts in VM:GetDescendants() do
+					if parts:IsA("BasePart") then
+						parts.Transparency = 1
+						parts.CanCollide = false
+					end
+				end
+				task.wait(0.1)
+				for _, parts in VM:GetDescendants() do
+					if parts:IsA("BasePart") then
+						parts.Transparency = 0
+					end
 				end
 			end
-			task.wait(0.1)
-			for _, parts in VM:GetDescendants() do
-				if parts:IsA("BasePart") then
-					parts.Transparency = 0
-				end
-			end
+			--> Play Animation Before parenting it
 		end
 	end
 
 	--> Attributes
-	plr:GetAttributeChangedSignal("WEAPON_TYPE"):Connect(function()
-		local attribute = plr:GetAttribute("WEAPON_TYPE")
-		if not attribute then
-			return
-		end
-
-		if attribute == "M4A1" then
+	plr:GetAttributeChangedSignal("M4A1"):Connect(function()
+		local attribute = plr:GetAttribute("M4A1")
+		if attribute then
+			Default()
 			M4A1()
 		else
 			VM:Destroy()
-			VM = nil
 			Default()
 		end
 	end)
-
-	Default()
 
 	local swayCF = CFrame.new()
 
@@ -238,14 +252,14 @@ function ViewModelClient:Adjust()
 			--> ViewModel follows camera position plus adds a shifting position every time the mouse moves
 			local mouseDelta = uis:GetMouseDelta() / 50
 
-			local swayX = math.clamp(mouseDelta.X, -0.08, 0.08)
-			local swayY = math.clamp(mouseDelta.Y, -0.08, 0.08)
+			local swayX = math.clamp(mouseDelta.X, -0.12, 0.12)
+			local swayY = math.clamp(mouseDelta.Y, -0.12, 0.12)
 
 			swayCF = swayCF:Lerp(CFrame.new(-swayX, swayY, 0), 0.05)
 
 			VM.HumanoidRootPart.CFrame = self.CurCamera.CFrame * swayCF
 		else
-			print("None")
+			return
 		end
 	end
 	RunService.RenderStepped:Connect(VMFOLLOWCAMERA)
