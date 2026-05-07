@@ -1,8 +1,6 @@
 local r_s = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 
-local VM_CLIENT_Remote = r_s.Assets.Remotes.VM_Event
-
 local uis = game:GetService("UserInputService")
 
 local players = game:GetService("Players")
@@ -149,15 +147,11 @@ function ViewModelClient:Adjust()
 			for _, parts in VM:GetDescendants() do
 				if parts:IsA("BasePart") then
 					parts.Transparency = 1
-				elseif parts:IsA("MeshPart") then
-					parts.Transparency = 1
 				end
 			end
 			task.wait(0.3)
 			for _, parts in VM:GetDescendants() do
 				if parts:IsA("BasePart") then
-					parts.Transparency = 0
-				elseif parts:IsA("MeshPart") then
 					parts.Transparency = 0
 				end
 			end
